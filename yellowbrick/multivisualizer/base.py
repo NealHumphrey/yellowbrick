@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 from yellowbrick.base import Visualizer
 
-class MultipleVisualizer(Visualizer):
+class MultiVisualizer(Visualizer):
 	def __init__(self, visualizers = [], axarr = None, **kwargs):
 		'''
 		Currently visualizers is a list of classes to be instantiated. 
@@ -18,21 +18,22 @@ class MultipleVisualizer(Visualizer):
 		'''
 		self.visualizers = visualizers
 		self.plotcount = len(visualizers)
-		self.nrows = self.plotcount
-		self.ncols = 1
-
+		self.nrows = kwargs.pop('nrows',self.plotcount)
+		self.ncols = kwargs.pop('ncols',1)
+		self.height = kwargs.pop('height',None)
 
 		if axarr == None:
 			fig, axarr = plt.subplots(self.nrows, self.ncols, squeeze = False)
 		
 		self.axarr = axarr
 
-		#TODO convert this looping into a generator? Only needed here. 
+		#TODO convert this looping into a generator? It's only needed here, unless we allow visualizers list to be modified.
 		idx = 0
 		for row in range(self.nrows):
 			for col in range(self.ncols):
-				self.visualizers[idx].ax = self.axarr[row, col]
-				idx += 1
+				if self.plotcount > idx:
+					self.visualizers[idx].ax = self.axarr[row, col]
+					idx += 1
 
 		self.kwargs = kwargs
 
@@ -53,7 +54,9 @@ class MultipleVisualizer(Visualizer):
 
 		#TODO need more robust way to do this
 		fig_size = plt.rcParams["figure.figsize"]
-		fig_size[1] = 8
+		if self.height == None:
+			self.height = 6 * self.nrows
+		fig_size[1] = self.height
 		plt.rcParams["figure.figsize"] = fig_size
 
 
@@ -61,4 +64,6 @@ class MultipleVisualizer(Visualizer):
 			plt.savefig(outpath, **kwargs)
 		else:
 			plt.show()
+
+
 

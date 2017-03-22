@@ -8,5 +8,6 @@ multiples or as a dashboard of unrelated visualizers
 ## Imports
 ##########################################################################
 
-## Hoist visualizers into the regressor namespace
+## Hoist visualizers into the multivisualizer namespace
 from .base import *
+from .multiscatter import *
